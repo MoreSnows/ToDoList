@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using ToDoList.Domain.Entities;
 using ToDoList.Domain.Interfaces.Repositories;
+using ToDoList.Domain.Interfaces.Services;
 
 namespace ToDoList.Services.Implementations
 {
-    public class ActivityLogService
+    public class ActivityLogService : IActivityLogService
     {
         private readonly IActivityLogRepository _activityLogRepository;
 
@@ -17,7 +18,7 @@ namespace ToDoList.Services.Implementations
             _activityLogRepository = activityLogRepository;
         }
 
-        public async Task AddActivityLogAsync(Guid userId, string action, string details)
+        public async Task AddActivityLog(Guid userId, string action, string details)
         {
             if (userId == Guid.Empty) throw new ArgumentException("User ID cannot be empty", nameof(userId));
             if (string.IsNullOrEmpty(action)) throw new ArgumentException("Action cannot be null or empty", nameof(action));
@@ -32,7 +33,7 @@ namespace ToDoList.Services.Implementations
             await _activityLogRepository.Add(log);
         }
 
-        public async Task<IEnumerable<ActivityLog>> GetActivityLogsByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<ActivityLog>> GetActivityLogsByUserId(Guid userId)
         {
             if (userId == Guid.Empty) throw new ArgumentException("User ID cannot be empty", nameof(userId));
 

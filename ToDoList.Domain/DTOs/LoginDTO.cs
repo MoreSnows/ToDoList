@@ -1,4 +1,4 @@
-﻿namespace ToDoList.DTOs
+﻿namespace ToDoList.Domain.DTOs
 {
     public class LoginDTO
     {

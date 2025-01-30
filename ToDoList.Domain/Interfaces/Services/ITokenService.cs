@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ToDoList.Domain.DTOs;
 
 namespace ToDoList.Domain.Interfaces.Services
 {
-    public interface ILoginService
+    public interface ITokenService
     {
-        Task RegisterUser(LoginDTO login);
-        Task<bool> Authenticate(LoginDTO login);
+        Task<string> GenerateJwtToken(string email);
     }
 }

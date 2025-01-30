@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToDoList.Domain.DTOs;
 using ToDoList.Domain.Entities;
 using ToDoList.Domain.Enums;
 using ToDoList.Domain.Interfaces.Repositories;
 using ToDoList.Domain.Interfaces.Services;
 using ToDoList.Domain.ValueObjects;
-using ToDoList.DTOs;
 
 namespace ToDoList.Services.Implementations
 {
