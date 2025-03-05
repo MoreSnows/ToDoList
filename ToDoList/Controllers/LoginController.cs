@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using ToDoList.Domain.DTOs;
+using ToDoList.Domain.Model;
 using ToDoList.Domain.Interfaces.Services;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -30,20 +30,27 @@ namespace ToDoList.Controllers
         [SwaggerResponse(200, "Login bem-sucedido", typeof(object))]
         [SwaggerResponse(400, "Credenciais inválidas ou dados de entrada incorretos")]
         [SwaggerResponse(401, "Credenciais inválidas")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO login)
+        public async Task<IActionResult> Login([FromBody] LoginRequest login)
         {
-            if (login == null || !ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
+                if (login == null || !ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            if (!await _loginService.Authenticate(login))
+                if (!await _loginService.Authenticate(login))
+                {
+                    return Unauthorized(new { message = "Invalid credentials" });
+                }
+
+                var token = await _tokenService.GenerateJwtToken(login.Login);
+                return Ok(new { token });
+            }
+            catch
             {
-                return Unauthorized(new { message = "Invalid credentials" });
+                return BadRequest();
             }
-
-            var token = _tokenService.GenerateJwtToken(login.Email);
-            return Ok(new { token });
         }
 
         /// <summary>
@@ -55,7 +62,7 @@ namespace ToDoList.Controllers
         [SwaggerOperation(Summary = "Registra um novo usuário", Description = "Cria um novo usuário no sistema.")]
         [SwaggerResponse(200, "Usuário registrado com sucesso", typeof(object))]
         [SwaggerResponse(400, "Tentativa de registro inválida")]
-        public async Task<IActionResult> Register([FromBody] LoginDTO login)
+        public async Task<IActionResult> Register([FromBody] LoginModel login)
         {
             if (login == null || !ModelState.IsValid)
             {

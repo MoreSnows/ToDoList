@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ToDoList.Domain.DTOs;
+using ToDoList.Domain.Model;
 using ToDoList.Domain.Entities;
 using ToDoList.Domain.Enums;
 using ToDoList.Domain.Interfaces.Repositories;
@@ -27,18 +28,20 @@ namespace ToDoList.Services.Implementations
             _passwordService = passwordService;
         }
 
-        public async Task<bool> Authenticate(LoginDTO login)
+        public async Task<bool> Authenticate(LoginRequest login)
         {
-            if (login == null)
+            var loginDto = IdentifyType(login);
+
+            if (loginDto == null)
             {
-                throw new ArgumentNullException(nameof(login));
+                throw new ArgumentNullException(nameof(loginDto));
             }
 
             var user = await _userRepository.GetUser(new UserSearchCriteria
             {
-                Email = login.Email,
-                Username = login.Username,
-                Phone = login.Phone
+                Email = loginDto.Email,
+                Username = loginDto.Username,
+                Phone = loginDto.Phone
             });
 
             if(user == null)
@@ -60,7 +63,7 @@ namespace ToDoList.Services.Implementations
             }
         }
 
-        public async Task RegisterUser(LoginDTO login)
+        public async Task RegisterUser(LoginModel login)
         {
             if(login == null)
             {
@@ -81,5 +84,52 @@ namespace ToDoList.Services.Implementations
 
             await _activityLogService.AddActivityLog(user.Id, ActivityEnum.Register.Name, null);
         }
+
+        public LoginModel IdentifyType(LoginRequest loginRequest)
+        {
+            var login = new LoginModel
+            {
+                Password = loginRequest.Password
+            };
+
+            if (IsPhoneNumber(loginRequest.Login))
+            {
+                login.Phone = loginRequest.Login;
+                return login;
+            }
+
+            if (IsEmail(loginRequest.Login))
+            {
+                login.Email = loginRequest.Login;
+                return login;
+            }
+
+            if (IsUsername(loginRequest.Login))
+            {
+                login.Username = loginRequest.Login;
+                return login;
+            }
+
+            return null;
+        }
+
+        private bool IsPhoneNumber(string input)
+        {
+            string pattern = @"^(\+\d{1,3}\s?)?(\(\d{2,4}\)|\d{2,4})[\s-]?\d{4,5}[\s-]?\d{4}$";
+            return Regex.IsMatch(input, pattern);
+        }
+
+        private bool IsEmail(string input)
+        {
+            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(input, pattern);
+        }
+
+        private bool IsUsername(string input)
+        {
+            string pattern = @"^[a-zA-Z0-9_\.]{3,20}$";
+            return Regex.IsMatch(input, pattern);
+        }
     }
+
 }

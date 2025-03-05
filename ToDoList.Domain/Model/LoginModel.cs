@@ -1,6 +1,6 @@
-﻿namespace ToDoList.Domain.DTOs
+﻿namespace ToDoList.Domain.Model
 {
-    public class LoginDTO
+    public class LoginModel
     {
         public string Email { get; set; }
         public string Username { get; set; }
